@@ -1,0 +1,67 @@
+﻿@*@model IEnumerable<JiraJWL.Modelos.Issue>*@
+
+@{
+    ViewBag.Title = "Jira Issue";
+}
+
+<div class="jumbotron">
+    <h1>JIRA Issue</h1>
+    <p class="lead">Issue.</p>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <h2>Add Worklog</h2>
+    </div>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>
+                    Name
+                </th>
+                <th>
+                    Type
+                </th>
+                <th>
+                    Description
+                </th>
+                <th>
+                    Time Spent
+                </th>
+                <th>
+                    Time Original Estimate
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    @ViewBag.issueKey
+                </td>
+                <td>
+                    @ViewBag.type
+                </td>
+                <td>
+                    @ViewBag.summary
+                </td>
+                <td>
+                    @ViewBag.timeSpent
+                </td>
+                <td>
+                    @ViewBag.timeOriginalEstimate
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <form id="frmProj" data-parsley-validate class="form-horizontal form-label-left" method="post" action="AddWorklog">
+        <div class="form-group">
+            <div class="col-md-4 col-sm-6 col-xs-12">
+                <input type="hidden" name="issueKey" value="@ViewBag.issueKey" />
+                <input type="hidden" name="timeSpent" value="@ViewBag.timeSpent" />
+                <input type="hidden" name="timeOriginalEstimate" value="@ViewBag.timeOriginalEstimate" />
+                <input type="text" required="required" class="form-control col-md-7 col-xs-12" name="seconds" placeholder="Ingrese el tiempoen milisegundos para agregar al issue">
+                <button type="submit" class="btn btn-primary">Add Time</button>
+            </div>
+        </div>
+    </form>
+</div>
