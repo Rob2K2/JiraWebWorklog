@@ -91,7 +91,8 @@ namespace JiraJWL.Controllers
             string value = Session["value"].ToString();
             bool res = false;
 
-            res = long.TryParse(timeSpent, out long lngTimeSpent);
+            long lngTimeSpent = 0;
+            res = long.TryParse(timeSpent, out lngTimeSpent);
             if (!res)
             {
                 lngTimeSpent = 0;
