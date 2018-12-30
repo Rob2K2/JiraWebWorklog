@@ -26,9 +26,6 @@ namespace JiraJWL.Controllers
             projects = GetProjects();
             ViewBag.Projects = projects;
 
-
-
-
             return View(GetIssues(project));
         }
 
@@ -73,15 +70,9 @@ namespace JiraJWL.Controllers
         }
 
         [HttpPost]
-        public ActionResult Issue(string issueKey, string type, string summary, string timeSpent, string timeOriginalEstimate)
+        public ActionResult Issue(string issueKey)
         {
-            ViewBag.issueKey = issueKey;
-            ViewBag.type = type;
-            ViewBag.summary = summary;
-            ViewBag.timeSpent = timeSpent;
-            ViewBag.timeOriginalEstimate = timeOriginalEstimate;
-
-            return View();
+            return View(GetIssue(issueKey));
         }
 
         [HttpPost]
@@ -104,7 +95,6 @@ namespace JiraJWL.Controllers
             if (segundos + lngTimeSpent >= lngTimeOriginalEstimate + lngTimeOriginalEstimate * 0.1)
             {
                 TempData["alert"] = true;
-                //ViewBag.alert = true;
             }
 
             string fecha = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss.fff-0400");
@@ -120,10 +110,24 @@ namespace JiraJWL.Controllers
             if (response.StatusCode.ToString() == "Created")
             {
                 TempData["successful"] = issueKey;
-                //ViewBag.successful = true;
             }
 
-            return RedirectToAction("Index");
+            //return RedirectToAction("Index");
+            return View("Issue", GetIssue(issueKey));
+        }
+
+        private Issue GetIssue(string issueKey)
+        {
+            string name = Session["name"].ToString();
+            string value = Session["value"].ToString();
+
+            var client = new RestClient("https://meng-mod-04.atlassian.net/rest/api/2/issue/" + issueKey);
+            var request = new RestRequest(Method.GET);
+            request.AddCookie(name, value);
+            request.AddHeader("Content-Type", "application/json");
+            var response = client.Execute<Issue>(request);
+
+            return response.Data;
         }
     }
 }

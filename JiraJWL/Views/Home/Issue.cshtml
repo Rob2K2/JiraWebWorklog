@@ -1,4 +1,4 @@
-﻿@*@model IEnumerable<JiraJWL.Modelos.Issue>*@
+﻿@model JiraJWL.Modelos.Issue
 
 @{
     ViewBag.Title = "Jira Issue";
@@ -6,62 +6,156 @@
 
 <div class="jumbotron">
     <h1>JIRA Issue</h1>
-    <p class="lead">Issue.</p>
 </div>
-
-<div class="row">
-    <div class="col-md-4">
-        <h2>Add Worklog</h2>
+@if (TempData["successful"] != null)
+{
+    <div class="alert alert-success alert-dismissable">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
+        <strong>Éxito: </strong>El worklog se agregó exitosamente al issue: @TempData["successful"].
     </div>
-    <table class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>
-                    Name
-                </th>
-                <th>
-                    Type
-                </th>
-                <th>
-                    Description
-                </th>
-                <th>
-                    Time Spent
-                </th>
-                <th>
-                    Time Original Estimate
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>
-                    @ViewBag.issueKey
-                </td>
-                <td>
-                    @ViewBag.type
-                </td>
-                <td>
-                    @ViewBag.summary
-                </td>
-                <td>
-                    @ViewBag.timeSpent
-                </td>
-                <td>
-                    @ViewBag.timeOriginalEstimate
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <form id="frmProj" data-parsley-validate class="form-horizontal form-label-left" method="post" action="AddWorklog">
-        <div class="form-group">
-            <div class="col-md-4 col-sm-6 col-xs-12">
-                <input type="hidden" name="issueKey" value="@ViewBag.issueKey" />
-                <input type="hidden" name="timeSpent" value="@ViewBag.timeSpent" />
-                <input type="hidden" name="timeOriginalEstimate" value="@ViewBag.timeOriginalEstimate" />
-                <input type="text" required="required" class="form-control col-md-7 col-xs-12" name="seconds" placeholder="Ingrese el tiempoen milisegundos para agregar al issue">
-                <button type="submit" class="btn btn-primary">Add Time</button>
+}
+@if (TempData["alert"] != null)
+{
+    <div class="alert alert-info alert-dismissable">
+        <a href="#" class="close" data-dismiss="alert" aria-label="close">×</a>
+        <span class="fa fa-bell"> </span><strong> El tiempo agregado superó el 10% del total estimado.</strong>
+    </div>
+}
+    <div class="row">
+        <div class="col-md-4">
+            <h2>Add Worklog</h2>
+        </div>
+
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>
+                        Name
+                    </th>
+                    <th>
+                        Type
+                    </th>
+                    <th>
+                        Description
+                    </th>
+                    <th>
+                        Time Spent
+                    </th>
+                    <th>
+                        Original Estimate
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        @Html.DisplayFor(model => model.Key)
+                    </td>
+                    <td>
+                        <img src="@Html.DisplayFor(model => model.Fields.Issuetype.IconUrl)" />
+                    </td>
+                    <td>
+                        @Html.DisplayFor(model => model.Fields.Summary)
+                    </td>
+                    <td>
+                        <span class="badge">@Html.DisplayFor(model => model.Fields.Timetracking.TimeSpent)</span>
+                    </td>
+                    <td>
+                        <span class="badge">@Html.DisplayFor(model => model.Fields.Timetracking.OriginalEstimate)</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <form id="frmProj" data-parsley-validate class="form-horizontal form-label-left" method="post" action="AddWorklog">
+            <div class="form-group">
+                <div class="col-md-5 col-sm-6 col-xs-12">
+                    <input type="hidden" name="issueKey" value="@Model.Key" />
+                    <input type="hidden" name="timeSpent" value="@Model.Fields.Timetracking.TimeSpentSeconds" />
+                    <input type="hidden" name="timeOriginalEstimate" value="@Model.Fields.Timetracking.OriginalEstimateSeconds" />
+                    <input id="secondsLit" required="required" class="form-control col-md-7 col-xs-12" name="secondsLit" value="0h 0m" readonly>
+                    <button type="submit" class="btn btn-success" onclick="return ConfirmAddTime();">Add Time Worklog <span class="fa fa-plus-circle"></span></button>
+                    <input type="hidden" id="seconds" name="seconds" value="0">
+                </div>
+            </div>
+        </form>
+        <div class="row text-center">
+            <div class="col-xs-3">
+                <button type="submit" class="btn btn-primary btn-block" onclick="return AddValue(900);">15m</button>
+            </div>
+            <div class="col-xs-3">
+                <button type="submit" class="btn btn-primary btn-block" onclick="return AddValue(3600);">1h</button>
+            </div>
+            <div class="col-xs-3">
+                <button type="submit" class="btn btn-primary btn-block" onclick="return DecValue(3600);">(-)1h</button>
+            </div>
+            <div class="col-xs-3">
+                <button type="submit" class="btn btn-primary btn-block" onclick="return DecValue(900);">(-)15m</button>
             </div>
         </div>
-    </form>
-</div>
+        <div>
+            <hr />
+            <a href="@Url.Action("Index")" class="btn btn-info btn-sm">
+                <span class="fa fa-arrow-left"></span>
+                Back to index
+            </a>
+        </div>
+    </div>
+
+@section scripts
+{
+    <script>
+        function AddValue(milisegundos) {
+            var value = parseInt(document.getElementById('seconds').value, 10);
+            value = isNaN(value) ? 0 : value;
+            value += milisegundos;
+
+            valueLit = seconds_to_days_hours_mins_secs_str(value);
+
+            document.getElementById('seconds').value = value;
+            document.getElementById('secondsLit').value = valueLit;
+        }
+
+        function DecValue(milisegundos) {
+            var value = parseInt(document.getElementById('seconds').value, 10);
+            value = isNaN(value) ? 0 : value;
+            value -= milisegundos;
+            value < 0 ? value = 0 : '';
+
+            valueLit = seconds_to_days_hours_mins_secs_str(value);
+
+            document.getElementById('seconds').value = value;
+            document.getElementById('secondsLit').value = valueLit;
+        }
+
+        function seconds_to_days_hours_mins_secs_str(seconds) {
+            var days = Math.floor(seconds / (24 * 60 * 60));
+            seconds -= days * (24 * 60 * 60);
+            var hours = Math.floor(seconds / (60 * 60));
+            seconds -= hours * (60 * 60);
+            var minutes = Math.floor(seconds / (60));
+            seconds -= minutes * (60);
+            return ((0 < days) ? (days + " day, ") : "") + hours + "h " + minutes + "m";
+        }
+
+        function ConfirmAddTime() {
+
+            let timeSpent = @Model.Fields.Timetracking.TimeSpentSeconds;
+            let timeOriginalEstimate = @Model.Fields.Timetracking.OriginalEstimateSeconds;
+            let seconds = parseInt(document.getElementById('seconds').value, 10);
+
+            if (seconds > 0) {
+                if (seconds + timeSpent >= timeOriginalEstimate + timeOriginalEstimate * 0.1) {
+                    alert("¡El tiempo sobrepasa el 10% del estimado o no existe tiempo estimado!");
+                    //return false;
+                }
+                else {
+                    return true;
+                }
+            }
+            else {
+                alert("¡El tiempo enviado debe ser mayor a cero!");
+                return false;
+            }
+        }
+    </script>
+}

@@ -35,7 +35,7 @@ namespace JiraJWL.Modelos
     {
         public Issuetype Issuetype { get; set; }
 
-        public long? Timespent { get; set; }
+        public long Timespent { get; set; }
 
         public List<object> FixVersions { get; set; }
 
@@ -124,6 +124,8 @@ namespace JiraJWL.Modelos
         public object Duedate { get; set; }
 
         public long? Customfield10023 { get; set; }
+
+        public Timetracking Timetracking { get; set; }
     }
 
     public class Issuetype
@@ -141,5 +143,20 @@ namespace JiraJWL.Modelos
         public bool Subtask { get; set; }
 
         public long AvatarId { get; set; }
+    }
+
+    public class Timetracking
+    {
+        public string OriginalEstimate { get; set; }
+
+        public string RemainingEstimate { get; set; }
+
+        public string TimeSpent { get; set; }
+
+        public long OriginalEstimateSeconds { get; set; }
+
+        public long RemainingEstimateSeconds { get; set; }
+
+        public long TimeSpentSeconds { get; set; }
     }
 }

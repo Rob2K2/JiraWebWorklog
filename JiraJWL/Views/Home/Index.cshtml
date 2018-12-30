@@ -57,12 +57,12 @@
                         <th>
                             Description
                         </th>
-                        <th>
+                        @*<th>
                             Time Spent
                         </th>
                         <th>
                             Time Original Estimate
-                        </th>
+                        </th>*@
                         <th>
                             Worklog
                         </th>
@@ -76,26 +76,24 @@
                                 @Html.DisplayFor(modelItem => item.Key)
                             </td>
                             <td>
-                                @Html.DisplayFor(modelItem => item.Fields.Issuetype.Name)
+                                <img src="@Html.DisplayFor(modelItem => item.Fields.Issuetype.IconUrl)" />
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.Fields.Summary)
                             </td>
-                            <td>
+                            @*<td>
                                 @Html.DisplayFor(modelItem => item.Fields.Timespent)
                             </td>
                             <td>
                                 @Html.DisplayFor(modelItem => item.Fields.Timeoriginalestimate)
-                            </td>
+                            </td>*@
                             <td>
                                 <form id="frmAddWorklog" data-parsley-validate class="form-horizontal form-label-left" action="Issue" method="post">
                                     <input type="hidden" name="issueKey" value="@item.Key" />
-                                    <input type="hidden" name="type" value="@item.Fields.Issuetype.Name" />
-                                    <input type="hidden" name="summary" value="@item.Fields.Summary" />
-                                    <input type="hidden" name="timeSpent" value="@item.Fields.Timespent" />
-                                    <input type="hidden" name="timeOriginalEstimate" value="@item.Fields.Timeoriginalestimate" />
+                                    @*<input type="hidden" name="timeSpent" value="@item.Fields.Timespent" />
+                                    <input type="hidden" name="timeOriginalEstimate" value="@item.Fields.Timeoriginalestimate" />*@
                                     <button type="submit" class="btn btn-success">
-                                        Add Worklog <span class="fa fa-print"></span>
+                                        Add Worklog
                                     </button>
                                 </form>
                             </td>
